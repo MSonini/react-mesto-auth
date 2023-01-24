@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CurrentAuthUserContext } from '../contexts/CurrentAuthUserContext';
 import { PAGES } from '../utils/constants';
+import { UserEmailContext } from '../contexts/UserEmailContext';
 
 export default function Header() {
-  const currentAuthUser = useContext(CurrentAuthUserContext);
+  const userEmail = useContext(UserEmailContext);
   const location = useLocation();
   const navigate = useNavigate();
   let action = null;
@@ -40,15 +40,12 @@ export default function Header() {
       action = handleLoginClick;
       actionName = 'Войти';
   }
-  console.log('currentAuthUser:', currentAuthUser);
+  // console.log('userEmail:', userEmail);
   return (
     <header className="header">
       <div className="header__logo"></div>
       <div className="header__actions">
-        {location.pathname === '/' && Object.values(currentAuthUser).length > 0 && (
-          <div className="header__email">{currentAuthUser.email}</div>
-          // <span className="header__email">{'test@test.ru'}</span>
-        )}
+        {location.pathname === '/' && userEmail && <div className="header__email">{userEmail}</div>}
         <button className="button header__action-btn" onClick={action}>
           {actionName}
         </button>

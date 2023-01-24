@@ -1,32 +1,20 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../utils/Api';
-
 import Form from './Form';
 import Input from './Input';
 
-export default function Login({ onError, onSubmit, setCurrentAuthUser }) {
+export default function Login({ onSubmit }) {
   let [email, setEmail] = useState('');
   let [password, setPassword] = useState('');
-  const navigate = useNavigate();
-  const handleLogin = (e) => {
-    e.preventDefault();
-    api
-      .authorize(email, password)
-      .then((res) => {
-        onSubmit();
-        localStorage.setItem('jwt', res.token);
-        setCurrentAuthUser({ email });
-        // console.log(localStorage.getItem('jwt'));
-        navigate('/');
-      })
-      .catch((res) => {
-        onError('Что-то пошло не так! Попробуйте еще раз.', true);
-        console.error(res);
-      });
-  };
+
   return (
-    <Form title="Вход" submitTitle="Войти" name="login" onSubmit={handleLogin}>
+    <Form
+      title="Вход"
+      submitTitle="Войти"
+      name="login"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(email, password);
+      }}>
       <Input
         name={'email'}
         typeName={'email'}

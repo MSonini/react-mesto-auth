@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Form from './Form';
 import Input from './Input';
-import api from '../utils/Api';
 import { useNavigate } from 'react-router-dom';
 import { PAGES } from '../utils/constants';
 
@@ -9,19 +8,6 @@ export default function Register({ onSubmit }) {
   let [email, setEmail] = useState('');
   let [password, setPassword] = useState('');
   let navigate = useNavigate();
-  const handleRegister = (e) => {
-    e.preventDefault();
-    api
-      .register(email, password)
-      .then((res) => {
-        onSubmit('Вы успешно зарегистрировались!', false);
-        // navigate('/sign-up');
-      })
-      .catch((res) => {
-        onSubmit('Что-то пошло не так! Попробуйте еще раз.', true);
-        console.error(res);
-      });
-  };
 
   return (
     <>
@@ -36,12 +22,14 @@ export default function Register({ onSubmit }) {
               type="button"
               className="button form__helper-link"
               onClick={() => navigate(PAGES.login)}>
-              {' '}
               Войти
             </button>
           </>
         }
-        onSubmit={handleRegister}>
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit(email, password);
+        }}>
         <Input
           name={'email'}
           typeName={'email'}

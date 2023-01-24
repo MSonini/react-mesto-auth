@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 
 import ImagePopup from './ImagePopup';
 import EditProfilePopup from './EditProfilePopup';
@@ -16,12 +16,12 @@ import Register from './Register';
 import { PageNotFound } from './PageNotFound';
 import InfoTooltip from './InfoTooltip';
 import { PAGES } from '../utils/constants';
-import { CurrentAuthUserContext } from '../contexts/CurrentAuthUserContext';
+import { UserEmailContext } from '../contexts/UserEmailContext';
 
 function App() {
   const [currentUser, setCurrentUser] = useState({});
-  const [currentAuthUser, setCurrentAuthUser] = useState({});
-  const [loggedIn, setLoggedIn] = useState((state) => !!localStorage.getItem('jwt'));
+  const [userEmail, setUserEmail] = useState('');
+  const [loggedIn, setLoggedIn] = useState(false);
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
@@ -30,6 +30,7 @@ function App() {
   const [tooltipText, setTooltipText] = useState('');
   const [tooltipWithError, setTooltipError] = useState(false);
   const [cards, setCards] = useState([]);
+  const navigate = useNavigate();
 
   const handleEditAvatarClick = () => {
     setEditAvatarPopupOpen(true);
@@ -80,11 +81,40 @@ function App() {
   };
   const handleAddPlaceSubmit = (card) => {
     console.log(card);
-    api.addCard(card).then((card) => {
-      console.log(card);
-      setCards([card, ...cards]);
-      closeAllPopups();
-    });
+    api
+      .addCard(card)
+      .then((card) => {
+        console.log(card);
+        setCards([card, ...cards]);
+        closeAllPopups();
+      })
+      .catch(console.error);
+  };
+  const handleLogin = (email, password) => {
+    api
+      .authorize(email, password)
+      .then((res) => {
+        setLoggedIn(true);
+        localStorage.setItem('jwt', res.token);
+        setUserEmail(email);
+        navigate('/');
+      })
+      .catch((res) => {
+        handleTooltipOpen('Что-то пошло не так! Попробуйте еще раз.', true);
+        console.error(res);
+      });
+  };
+  const handleRegister = (email, password) => {
+    api
+      .register(email, password)
+      .then((res) => {
+        handleTooltipOpen('Вы успешно зарегистрировались!', false);
+        // navigate('/sign-up');
+      })
+      .catch((res) => {
+        handleTooltipOpen('Что-то пошло не так! Попробуйте еще раз.', true);
+        console.error(res);
+      });
   };
 
   const handleTooltipOpen = (title, withError) => {
@@ -100,21 +130,32 @@ function App() {
     setSelectedCard(false);
     setTooltipOpen(false);
   };
-  useEffect(() => {
+  const loadUserAndCards = () => {
     Promise.all([api.getProfileData(), api.getCards()])
       .then(([user, cards]) => {
         setCards(cards);
         setCurrentUser(user);
       })
       .catch(console.error);
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      api.checkToken(token).then((res) => {
+        loadUserAndCards();
+        setLoggedIn(true);
+        setUserEmail(res.data.email);
+        navigate('/');
+      });
+    }
   }, []);
-  // console.log('loggedIn:', loggedIn);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
-      <CurrentAuthUserContext.Provider value={currentAuthUser}>
+      <UserEmailContext.Provider value={userEmail}>
         <div className="page">
-          <Header setAuthUser={setCurrentAuthUser} />
+          <Header />
           <Routes>
             <Route
               path={PAGES.index}
@@ -132,17 +173,8 @@ function App() {
                 />
               }
             />
-            <Route
-              path={PAGES.login}
-              element={
-                <Login
-                  onError={handleTooltipOpen}
-                  onSubmit={() => setLoggedIn(true)}
-                  setCurrentAuthUser={setCurrentAuthUser}
-                />
-              }
-            />
-            <Route path={PAGES.register} element={<Register onSubmit={handleTooltipOpen} />} />
+            <Route path={PAGES.login} element={<Login onSubmit={handleLogin} />} />
+            <Route path={PAGES.register} element={<Register onSubmit={handleRegister} />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
 
@@ -174,7 +206,7 @@ function App() {
           />
           <Footer />
         </div>
-      </CurrentAuthUserContext.Provider>
+      </UserEmailContext.Provider>
     </CurrentUserContext.Provider>
   );
 }
