@@ -140,16 +140,21 @@ function App() {
   };
 
   useEffect(() => {
+    if (loggedIn) {
+      loadUserAndCards();
+    }
     const token = localStorage.getItem('jwt');
     if (token) {
-      api.checkToken(token).then((res) => {
-        loadUserAndCards();
-        setLoggedIn(true);
-        setUserEmail(res.data.email);
-        navigate('/');
-      });
+      api
+        .checkToken(token)
+        .then((res) => {
+          setLoggedIn(true);
+          setUserEmail(res.data.email);
+          navigate('/');
+        })
+        .catch(console.error);
     }
-  }, []);
+  }, [loggedIn]);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
