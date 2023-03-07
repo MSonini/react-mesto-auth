@@ -1,1 +1,14 @@
-Реализация проекта [Mesto](https://github.com/MSonini/mesto/blob/main/README.md) на React.js
+# Mesto
+
+### Описание
+
+Небольшой сайт с системой авторизации и персональным профилем, позволяющий делиться своими изображениями. Все данные получаются через АПИ.
+Реализация проекта [Mesto](https://github.com/MSonini/mesto) на React.js. 
+
+### Технологии
+
+ - HTML
+ - CSS
+ - JS
+ - React.js
+ - react-router-dom
