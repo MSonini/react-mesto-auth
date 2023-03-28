@@ -143,17 +143,26 @@ function App() {
     if (loggedIn) {
       loadUserAndCards();
     }
-    const token = localStorage.getItem('jwt');
-    if (token) {
-      api
-        .checkToken(token)
-        .then((res) => {
-          setLoggedIn(true);
-          setUserEmail(res.data.email);
-          navigate('/');
-        })
-        .catch(console.error);
-    }
+    // const token = localStorage.getItem('jwt');
+    // if (token) {
+    //   api
+    //     .checkToken(token)
+    //     .then((res) => {
+    //       setLoggedIn(true);
+    //       setUserEmail(res.data.email);
+    //       navigate('/');
+    //     })
+    //     .catch(console.error);
+    // }
+    api
+    .checkToken()
+    .then((res) => {
+      console.log('res', res)
+      setLoggedIn(true);
+      setUserEmail(res.email);
+      navigate('/');
+    })
+    .catch(console.error);
   }, [loggedIn]);
 
   return (

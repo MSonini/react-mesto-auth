@@ -1,4 +1,4 @@
-import { BASE_URL, AUTH_KEY, AUTH_BASE_URL } from './constants';
+import { BASE_API_URL, AUTH_KEY, AUTH_BASE_URL } from './constants';
 
 class Api {
   constructor({ baseUrl, authBaseUrl, headers }) {
@@ -8,14 +8,19 @@ class Api {
   }
 
   _fetchData(resource, method, body = null, baseUrl = this._baseUrl, headers = this._headers) {
-    // console.log(resource);
     return fetch(baseUrl + resource, {
       method: method.toUpperCase(),
       body: body ? JSON.stringify(body) : body,
       headers,
+      credentials: 'include',
     }).then((res) => {
       if (res.ok) return res.json();
       return Promise.reject(res);
+    }).then(res => {
+      if (res.data) {
+        return Promise.resolve(res.data)
+      }
+      return Promise.reject(res)
     });
   }
 
@@ -57,15 +62,21 @@ class Api {
   }
 
   checkToken(token) {
+    if (token) {
+      return this._fetchData('/users/me', 'get', null, this._authBaseUrl, {
+        ...this._headers,
+        authorization: `Bearer ${token}`,
+      });
+    }
     return this._fetchData('/users/me', 'get', null, this._authBaseUrl, {
       ...this._headers,
-      authorization: `Bearer ${token}`,
     });
+
   }
 }
 
 const api = new Api({
-  baseUrl: BASE_URL,
+  baseUrl: BASE_API_URL,
   authBaseUrl: AUTH_BASE_URL,
   headers: {
     authorization: AUTH_KEY,

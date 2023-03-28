@@ -13,7 +13,7 @@ export default function Main({
   cards,
 }) {
   const currentUser = useContext(CurrentUserContext);
-
+  console.log('cards', cards)
   return (
     <main className="content">
       <section className="profile">
@@ -40,7 +40,7 @@ export default function Main({
       </section>
 
       <section className="elements">
-        {cards.map((e) => (
+        {cards.length? cards.map((e) => (
           <Card
             key={e._id}
             card={e}
@@ -48,7 +48,7 @@ export default function Main({
             onCardClick={onCardClick}
             onCardLike={onCardLike}
           />
-        ))}
+        )): null}
       </section>
     </main>
   );
