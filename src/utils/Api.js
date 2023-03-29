@@ -15,12 +15,13 @@ class Api {
       credentials: 'include',
     }).then((res) => {
       if (res.ok) return res.json();
+      console.log('reject in fetchData')
       return Promise.reject(res);
     }).then(res => {
       if (res.data) {
         return Promise.resolve(res.data)
       }
-      return Promise.reject(res)
+      return Promise.resolve(res)
     });
   }
 

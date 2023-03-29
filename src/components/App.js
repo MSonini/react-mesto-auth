@@ -95,13 +95,13 @@ function App() {
       .authorize(email, password)
       .then((res) => {
         setLoggedIn(true);
-        localStorage.setItem('jwt', res.token);
+        // localStorage.setItem('jwt', res.token);
         setUserEmail(email);
         navigate('/');
       })
       .catch((res) => {
         handleTooltipOpen('Что-то пошло не так! Попробуйте еще раз.', true);
-        console.error(res);
+        console.error('login', res);
       });
   };
   const handleRegister = (email, password) => {

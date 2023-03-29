@@ -13,6 +13,7 @@ export default function Header() {
   const handleLoginClick = () => {
     navigate(PAGES.login);
   };
+  // FIX logout
   const handleLogoutClick = () => {
     localStorage.removeItem('jwt');
     navigate(PAGES.login);
